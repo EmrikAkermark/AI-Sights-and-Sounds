@@ -84,6 +84,11 @@ bool UFGVisionSensingComponent::IsPointVisible(const FVector& PointToTest, const
 
 	const bool bIsValid = Dot > AsHalfRad;
 
+	if(bIsValid)
+	{
+		return IsPointBlocked(PointToTest, Origin);
+	}
+	
 	return bIsValid;
 }
 
@@ -93,5 +98,34 @@ float UFGVisionSensingComponent::GetVisionInRadians() const
 		return 0.0;
 
 	return FMath::Cos(FMath::DegreesToRadians(SensingSettings->Angle));
+}
+
+bool UFGVisionSensingComponent::IsPointBlocked(const FVector& PointToTrace, const FVector& Origin) const
+{
+
+	TArray<AActor*> ShitToIgnore;
+	FHitResult Hit;
+	UKismetSystemLibrary::LineTraceSingle(this, Origin, PointToTrace, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, ShitToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true);
+
+	if(Hit.bBlockingHit)
+	{
+		auto* HitTarget = Hit.GetActor();
+		//Trying something stupid here
+		
+		FVector const ActorOrigin = HitTarget->GetActorLocation();
+
+		//Alright I'm comparing the vectors since then I don't have to add any more parameters
+		//to the original method to check if the actor I'm hitting is the actor i'm looking for.
+		//IF both actor vectors are the same, it's the same actor.
+		//This should allow for actors to hide behind other actors
+		//since the important part is the actor vector, not finding the target component.
+		
+		if(ActorOrigin == PointToTrace)
+		{
+			return true;
+		}
+		return false;
+	}
+	return true;
 }
 
