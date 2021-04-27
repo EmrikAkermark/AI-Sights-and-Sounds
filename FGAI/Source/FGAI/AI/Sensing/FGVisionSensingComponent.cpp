@@ -113,7 +113,7 @@ bool UFGVisionSensingComponent::IsPointUnBlocked(const FVector& PointToTrace, co
 		
 		//This is a failsafe incase the blocking object is not an actor, like a BSP volume
 		//And if it's not an actor, we can safely assume it's not the object we're looking for
-		if(!HitTarget)
+		if(HitTarget == nullptr)
 		{
 			return false;
 		}
