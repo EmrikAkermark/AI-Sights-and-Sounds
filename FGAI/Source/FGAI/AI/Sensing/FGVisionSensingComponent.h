@@ -29,7 +29,7 @@ public:
 
 	bool IsPointVisible(const FVector& PointToTest, const FVector& Origin, const FVector& Direction, float DistanceMinimum) const;
 
-	bool IsPointBlocked(const FVector& PointToTrace, const FVector& Origin) const;
+	bool IsPointUnBlocked(const FVector& PointToTrace, const FVector& Origin) const;
 	
 	UPROPERTY(Transient)
 	TArray<UFGVisionSensingTargetComponent*> SensedTargets;

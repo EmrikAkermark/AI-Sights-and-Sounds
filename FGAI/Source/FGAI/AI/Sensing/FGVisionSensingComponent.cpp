@@ -86,7 +86,7 @@ bool UFGVisionSensingComponent::IsPointVisible(const FVector& PointToTest, const
 
 	if(bIsValid)
 	{
-		return IsPointBlocked(PointToTest, Origin);
+		return IsPointUnBlocked(PointToTest, Origin);
 	}
 	
 	return bIsValid;
@@ -100,9 +100,9 @@ float UFGVisionSensingComponent::GetVisionInRadians() const
 	return FMath::Cos(FMath::DegreesToRadians(SensingSettings->Angle));
 }
 
-bool UFGVisionSensingComponent::IsPointBlocked(const FVector& PointToTrace, const FVector& Origin) const
+//Bad name, but better that the old one.
+bool UFGVisionSensingComponent::IsPointUnBlocked(const FVector& PointToTrace, const FVector& Origin) const
 {
-
 	TArray<AActor*> ShitToIgnore;
 	FHitResult Hit;
 	UKismetSystemLibrary::LineTraceSingle(this, Origin, PointToTrace, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, ShitToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true);
@@ -110,8 +110,15 @@ bool UFGVisionSensingComponent::IsPointBlocked(const FVector& PointToTrace, cons
 	if(Hit.bBlockingHit)
 	{
 		auto* HitTarget = Hit.GetActor();
-		//Trying something stupid here
 		
+		//This is a failsafe incase the blocking object is not an actor, like a BSP volume
+		//And if it's not an actor, we can safely assume it's not the object we're looking for
+		if(!HitTarget)
+		{
+			return false;
+		}
+
+		//Trying something stupid here
 		FVector const ActorOrigin = HitTarget->GetActorLocation();
 
 		//Alright I'm comparing the vectors since then I don't have to add any more parameters
